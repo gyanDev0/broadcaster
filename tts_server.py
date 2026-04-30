@@ -9,7 +9,7 @@ if not ffmpeg_path:
         os.environ["PATH"] += os.pathsep + win_path
         ffmpeg_path = shutil.which("ffmpeg")
 
-from flask import Flask, request, send_file
+from flask import Flask, request, send_file, send_from_directory
 from gtts import gTTS
 import io
 from pydub import AudioSegment
@@ -92,6 +92,23 @@ def get_audio():
     except Exception as e:
         print(f"Error: {e}")
         return "Audio Generation Error", 500
+        
+@app.route('/download')
+def download_excel():
+    if os.path.exists(EXCEL_FILE):
+        return send_file(
+            EXCEL_FILE,
+            as_attachment=True,
+            download_name=f"attendance_{datetime.now().strftime('%Y-%m-%d')}.xlsx"
+        )
+    return "No attendance log found yet.", 404
+
+@app.route('/clear_log')
+def clear_log():
+    if os.path.exists(EXCEL_FILE):
+        os.remove(EXCEL_FILE)
+        return "Attendance log cleared."
+    return "Nothing to clear."
 
 if __name__ == '__main__':
     # Ensure you have ffmpeg installed for pydub to work
