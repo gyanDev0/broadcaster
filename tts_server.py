@@ -21,7 +21,7 @@ else:
     print("[WARNING] FFmpeg not found!")
 
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 
@@ -30,7 +30,8 @@ EXCEL_FILE = "attendance_log.xlsx"
 
 def log_to_excel(name):
     try:
-        now = datetime.now()
+        # Adjust for IST (UTC+5:30)
+        now = datetime.utcnow() + timedelta(hours=5, minutes=30)
         new_entry = {
             "Name": [name],
             "Date": [now.strftime("%Y-%m-%d")],
