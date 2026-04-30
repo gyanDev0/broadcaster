@@ -9,7 +9,7 @@ if not ffmpeg_path:
         os.environ["PATH"] += os.pathsep + win_path
         ffmpeg_path = shutil.which("ffmpeg")
 
-from flask import Flask, request, send_file, send_from_directory
+from flask import Flask, request, send_file, send_from_directory, render_template, jsonify
 from gtts import gTTS
 import io
 from pydub import AudioSegment
@@ -109,6 +109,25 @@ def clear_log():
         os.remove(EXCEL_FILE)
         return "Attendance log cleared."
     return "Nothing to clear."
+
+@app.route('/admin')
+def admin_panel():
+    return render_template('admin.html')
+
+@app.route('/api/attendance')
+def api_attendance():
+    if not os.path.exists(EXCEL_FILE):
+        return jsonify({"records": []})
+    
+    try:
+        df = pd.read_excel(EXCEL_FILE)
+        # Convert NaN to empty string for JSON compatibility
+        df = df.fillna("")
+        records = df.to_dict('records')
+        return jsonify({"records": records})
+    except Exception as e:
+        print(f"[API ERROR] {e}")
+        return jsonify({"error": str(e), "records": []}), 500
 
 if __name__ == '__main__':
     # Ensure you have ffmpeg installed for pydub to work
