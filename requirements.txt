@@ -1,0 +1,6 @@
+flask
+gtts
+pydub
+pandas
+openpyxl
+waitress
